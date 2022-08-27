@@ -1,0 +1,5 @@
+rootProject.name = 'organization-structure'
+include 'core'
+include 'api'
+include 'authserver'
+
