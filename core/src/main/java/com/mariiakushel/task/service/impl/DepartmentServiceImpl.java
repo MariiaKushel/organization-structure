@@ -66,12 +66,12 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     @Transactional
-    public DepartmentDtoOutput update(Long idDir, Long id, DepartmentDtoInput dto) throws CustomException {
-        Optional<Department> optDep = repository.findByIdAndDirectorateAndActive(id, new Directorate(idDir), true);
+    public DepartmentDtoOutput update(Long id, DepartmentDtoInput dto) throws CustomException {
+        Optional<Department> optDep = repository.findByIdAndActive(id, true);
         Department dep = optDep
                 .orElseThrow(() -> new CustomException("resource not found id=" + id, HttpStatus.NOT_FOUND));
         Optional<Department> nameCheck =
-                repository.findByNameAndDirectorateAndActive(dto.getName(), new Directorate(idDir), true);
+                repository.findByNameAndDirectorateAndActive(dto.getName(), dep.getDirectorate(), true);
         if (nameCheck.isPresent()) {
             throw new CustomException(
                     new StringBuilder()
@@ -89,8 +89,8 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     @Transactional
-    public void deactivate(Long idDir, Long id) throws CustomException {
-        Optional<Department> optDep = repository.findByIdAndDirectorateAndActive(id, new Directorate(idDir), true);
+    public void deactivate(Long id) throws CustomException {
+        Optional<Department> optDep = repository.findByIdAndActive(id, true);
         Department dep = optDep
                 .orElseThrow(() -> new CustomException("resource not found id=" + id, HttpStatus.NOT_FOUND));
         long numberOfEmployees = empRepository.countByActiveAndDepartment(true, dep.getId());
@@ -113,17 +113,25 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
-    public DepartmentDtoOutput findByIdByDirectorate(Long idDir, Long id) throws CustomException {
-        Optional<Department> optDep = repository.findByIdAndDirectorateAndActive(id, new Directorate(idDir), true);
+    public DepartmentDtoOutput findById(Long id) throws CustomException {
+        Optional<Department> optDep = repository.findByIdAndActive(id, true);
         Department dep = optDep
                 .orElseThrow(() -> new CustomException("resource not found id=" + id, HttpStatus.NOT_FOUND));
         return DtoEntityConvertor.convert(dep);
     }
 
     @Override
+    public List<DepartmentDtoOutput> findAll(int page, int size) {
+        Pageable paging = PageRequest.of(page - 1, size);
+        List<Department> deps = repository.findAllByActive(true, paging).toList();
+        return DtoEntityConvertor.convertDepartments(deps);
+    }
+
+    @Override
     public List<DepartmentDtoOutput> findAllByDirectorate(Long idDir, int page, int size) {
         Pageable paging = PageRequest.of(page - 1, size);
-        List<Department> deps = repository.findAllByDirectorateAndActive(new Directorate(idDir), true, paging).toList();
+        List<Department> deps =
+                repository.findAllByDirectorateAndActive(new Directorate(idDir), true, paging).toList();
         return DtoEntityConvertor.convertDepartments(deps);
     }
 

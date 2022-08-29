@@ -38,7 +38,7 @@ public class Employee extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Type( type = "postgres_enum_type" )
     private Position position;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subdepartment")
     private Subdepartment subdepartment;
 }
