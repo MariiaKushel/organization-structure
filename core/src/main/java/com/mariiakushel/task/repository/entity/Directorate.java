@@ -24,6 +24,10 @@ public class Directorate extends BaseEntity {
     private String name;
     @Column(name = "directorate_description", length = 400, nullable = false)
     private String description;
-    @OneToMany(mappedBy = "directorate", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST})
+    @OneToMany(mappedBy = "directorate", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     Set<Department> departments;
+
+    public Directorate(Long id) {
+        super(id);
+    }
 }

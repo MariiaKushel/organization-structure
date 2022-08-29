@@ -3,6 +3,7 @@ package com.mariiakushel.task.service.impl;
 import com.mariiakushel.task.enumeration.SubdepartmentType;
 import com.mariiakushel.task.exception.CustomException;
 import com.mariiakushel.task.repository.DirectorateRepository;
+import com.mariiakushel.task.repository.EmployeeRepository;
 import com.mariiakushel.task.repository.entity.Department;
 import com.mariiakushel.task.repository.entity.Directorate;
 import com.mariiakushel.task.repository.entity.Subdepartment;
@@ -18,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -31,34 +31,50 @@ public class DirectorateServiceImpl implements DirectorateService {
     private static final String DEFAULT_DEPARTMENT_DESCRIPTION = "Special department for Director of Direction";
 
     private DirectorateRepository repository;
+    private EmployeeRepository empRepository;
 
     @Autowired
-    public DirectorateServiceImpl(DirectorateRepository repository) {
+    public DirectorateServiceImpl(DirectorateRepository repository, EmployeeRepository empRepository) {
         this.repository = repository;
+        this.empRepository = empRepository;
     }
 
     @Override
     @Transactional
-    public DirectorateDtoOutput create(/*@Valid*/ DirectorateDtoInput dto) throws CustomException {
-        Optional<Directorate> dirCheck = repository.findByNameAndActive(dto.getName(), true);
-        if (dirCheck.isPresent()) {
-            throw new CustomException("Direction named '" + dto.getName() + "' already exist",
+    public DirectorateDtoOutput create(DirectorateDtoInput dto) throws CustomException {
+        Optional<Directorate> nameCheck = repository.findByNameAndActive(dto.getName(), true);
+        if (nameCheck.isPresent()) {
+            throw new CustomException(
+                    new StringBuilder()
+                            .append("Directorate named '")
+                            .append(dto.getName())
+                            .append("' already exist.")
+                            .toString(),
                     HttpStatus.CONFLICT);
         }
-        Department defaultDep = createDefaultDepartmentForDirector();
+
         Directorate dir = DtoEntityConvertor.convert(dto);
-        dir.setDepartments(Set.of(defaultDep));
-        defaultDep.setDirectorate(dir);
+        createDefaultDepartmentForDirector(dir);
         Directorate newDir = repository.save(dir);
         return DtoEntityConvertor.convert(newDir);
     }
 
     @Override
     @Transactional
-    public DirectorateDtoOutput update(Long id, /*@Valid*/ DirectorateDtoInput dto) throws CustomException {
+    public DirectorateDtoOutput update(Long id, DirectorateDtoInput dto) throws CustomException {
         Optional<Directorate> optDir = repository.findByIdAndActive(id, true);
         Directorate dir = optDir
                 .orElseThrow(() -> new CustomException("resource not found id=" + id, HttpStatus.NOT_FOUND));
+        Optional<Directorate> nameCheck = repository.findByNameAndActive(dto.getName(), true);
+        if (nameCheck.isPresent()) {
+            throw new CustomException(
+                    new StringBuilder()
+                            .append("Directorate named '")
+                            .append(dto.getName())
+                            .append("' already exist.")
+                            .toString(),
+                    HttpStatus.CONFLICT);
+        }
         dir.setName(dto.getName());
         dir.setDescription(dto.getDescription());
         Directorate updatedDir = repository.save(dir);
@@ -71,8 +87,28 @@ public class DirectorateServiceImpl implements DirectorateService {
         Optional<Directorate> optDir = repository.findByIdAndActive(id, true);
         Directorate dir = optDir
                 .orElseThrow(() -> new CustomException("resource not found id=" + id, HttpStatus.NOT_FOUND));
+        long numberOfEmployees = empRepository.countByActiveAndDirectorate(true, dir.getId());
+        if (numberOfEmployees != 0) {
+            throw new CustomException(
+                    new StringBuilder()
+                            .append("It is not possible deactivate directorate id=")
+                            .append(dir.getId())
+                            .append(", name=")
+                            .append(dir.getName())
+                            .append(" while there are ")
+                            .append(numberOfEmployees)
+                            .append(" employees.")
+                            .toString(),
+                    HttpStatus.CONFLICT);
+        }
         dir.setActive(false);
-        Directorate deactivatedDir = repository.save(dir);
+        Set<Department> deps = dir.getDepartments();
+        for (Department dep : deps) {
+            dep.setActive(false);
+            Set<Subdepartment> subdeps = dep.getSubdepartments();
+            subdeps.forEach(sd -> sd.setActive(false));
+        }
+        repository.save(dir);
     }
 
     @Override
@@ -90,14 +126,15 @@ public class DirectorateServiceImpl implements DirectorateService {
         return DtoEntityConvertor.convertDirectorates(dirs);
     }
 
-    private Department createDefaultDepartmentForDirector() {
+    private void createDefaultDepartmentForDirector(Directorate dir) {
         Department defaultDep = new Department();
+        defaultDep.setDirectorate(dir);
         defaultDep.setName(DEFAULT_DEPARTMENT_NAME);
         defaultDep.setDescription(DEFAULT_DEPARTMENT_DESCRIPTION);
         Subdepartment defaultSubdep = new Subdepartment();
         defaultSubdep.setType(SubdepartmentType.DIRECTORS);
         defaultSubdep.setDepartment(defaultDep);
         defaultDep.setSubdepartments(Set.of(defaultSubdep));
-        return defaultDep;
+        dir.setDepartments(Set.of(defaultDep));
     }
 }

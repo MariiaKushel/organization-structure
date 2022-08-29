@@ -22,6 +22,11 @@ public abstract class BaseEntity {
     private boolean active;
 
     public BaseEntity() {
-        active = true;
+        this.active = true;
+    }
+
+    public BaseEntity(Long id) {
+        this();
+        this.id = id;
     }
 }

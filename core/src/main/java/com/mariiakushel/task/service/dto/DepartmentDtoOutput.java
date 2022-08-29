@@ -11,5 +11,4 @@ public class DepartmentDtoOutput {
     private Long id;
     private String name;
     private String description;
-    private boolean active;
 }
