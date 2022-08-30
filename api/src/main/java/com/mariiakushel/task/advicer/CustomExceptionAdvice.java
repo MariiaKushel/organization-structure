@@ -5,6 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -129,24 +134,24 @@ public class CustomExceptionAdvice {
         return new ResponseEntity<>(exceptionResponse, httpStatus);
     }
 
-    //    @ExceptionHandler(AccessDeniedException.class)
-//    public ResponseEntity<ExceptionResponse> handleAccessDeniedException(
-//            AccessDeniedException e) {
-//        SecurityContext context = SecurityContextHolder.getContext();
-//        Authentication authentication = context.getAuthentication();
-//
-//        HttpStatus httpStatus;
-//        try {
-//            Jwt jwt = (Jwt) authentication.getPrincipal();
-//            httpStatus = HttpStatus.FORBIDDEN;
-//        } catch (ClassCastException ex) {
-//            httpStatus = HttpStatus.UNAUTHORIZED;
-//        }
-//        String errorCode = httpStatus.toString();
-//        String message = e.getMessage();
-//        ExceptionResponse exceptionResponse = new ExceptionResponse(message, errorCode);
-//        return new ResponseEntity<>(exceptionResponse, httpStatus);
-//    }
+        @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ExceptionResponse> handleAccessDeniedException(
+            AccessDeniedException e) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+
+        HttpStatus httpStatus;
+        try {
+            Jwt jwt = (Jwt) authentication.getPrincipal();
+            httpStatus = HttpStatus.FORBIDDEN;
+        } catch (ClassCastException ex) {
+            httpStatus = HttpStatus.UNAUTHORIZED;
+        }
+        String errorCode = httpStatus.toString();
+        String message = e.getMessage();
+        ExceptionResponse exceptionResponse = new ExceptionResponse(message, errorCode);
+        return new ResponseEntity<>(exceptionResponse, httpStatus);
+    }
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ExceptionResponse> handleConstraintViolationException(
             ConstraintViolationException e) {

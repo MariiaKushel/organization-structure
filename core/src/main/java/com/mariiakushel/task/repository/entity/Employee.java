@@ -15,6 +15,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Data
@@ -34,11 +35,14 @@ public class Employee extends BaseEntity {
     private String personalId;
     @Column(name = "employee_age", nullable = false)
     private Integer age;
-    @Column(name = "employee_position", columnDefinition = "position default 'EMPLOYEE'" )
+    @Column(name = "employee_position", columnDefinition = "position default 'EMPLOYEE'")
     @Enumerated(EnumType.STRING)
-    @Type( type = "postgres_enum_type" )
+    @Type(type = "postgres_enum_type")
     private Position position;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subdepartment")
     private Subdepartment subdepartment;
+    @OneToOne(mappedBy = "employee")
+    private User user;
+
 }

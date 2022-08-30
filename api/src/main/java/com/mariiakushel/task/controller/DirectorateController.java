@@ -7,6 +7,7 @@ import com.mariiakushel.task.service.dto.DirectorateDtoOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,37 +36,35 @@ public class DirectorateController {
         this.service = service;
     }
 
-    //@PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public DirectorateDtoOutput createDirectorate(@RequestBody DirectorateDtoInput dto) throws CustomException {
         return service.create(dto);
     }
 
-    //@PreAuthorize("hasAuthority('ADMIN', 'DIRECTOR?')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_DIRECTOR')")
     @PatchMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public DirectorateDtoOutput updateDirectorate(@PathVariable("id") @Positive Long id,
                                                   @RequestBody DirectorateDtoInput dto) throws CustomException {
         return service.update(id, dto);
     }
 
-    //@PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping(value = "/{id}")
     public void deactivateDirectorate(@PathVariable("id") @Positive Long id) throws CustomException {
         service.deactivate(id);
     }
 
-    //@PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping(value = "/{id}")
-    public DirectorateDtoOutput findDirectorate(//@AuthenticationPrincipal Jwt jwt,
-                                                @PathVariable("id") @Positive Long id) throws CustomException {
+    public DirectorateDtoOutput findDirectorate(@PathVariable("id") @Positive Long id) throws CustomException {
         return service.findById(id);
     }
 
-    //@PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public List<DirectorateDtoOutput> findAllDirectorates(
-            //@AuthenticationPrincipal Jwt jwt,
             @RequestParam(name = "page", defaultValue = "1", required = false) @Min(1) int page,
             @RequestParam(name = "size", defaultValue = "10", required = false) @Min(1) int size) {
         return service.findAll(page, size);

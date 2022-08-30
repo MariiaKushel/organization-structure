@@ -1,5 +1,6 @@
 package com.mariiakushel.task.controller;
 
+import com.mariiakushel.task.enumeration.UserRole;
 import com.mariiakushel.task.exception.CustomException;
 import com.mariiakushel.task.service.DepartmentService;
 import com.mariiakushel.task.service.dto.DepartmentDtoInput;
@@ -7,6 +8,7 @@ import com.mariiakushel.task.service.dto.DepartmentDtoOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,7 +36,7 @@ public class DepartmentController {
         this.service = service;
     }
 
-    //@PreAuthorize("hasAuthority('ADMIN', 'DIRECTOR')")
+    @PreAuthorize("hasAuthority('ROLE_DIRECTOR')")
     @PostMapping(value = "/directorates/{idDir}/departments", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public DepartmentDtoOutput createDepartment(@PathVariable("idDir") @Positive Long idDir,
@@ -42,41 +44,39 @@ public class DepartmentController {
         return service.create(idDir, dto);
     }
 
-    //@PreAuthorize("hasAuthority('ADMIN', 'DIRECTOR?')")
+    @PreAuthorize("hasAnyAuthority('ROLE_HEAD','ROLE_DIRECTOR')")
     @PatchMapping(value = "/departments/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public DepartmentDtoOutput updateDepartment(@PathVariable("id") @Positive Long id,
                                                 @RequestBody DepartmentDtoInput dto) throws CustomException {
         return service.update(id, dto);
     }
 
-    //@PreAuthorize("hasAuthority('ADMIN', 'DIRECTOR?')")
+    @PreAuthorize("hasAuthority('ROLE_DIRECTOR')")
     @DeleteMapping(value = "/departments/{id}")
     public void deactivateDepartment(@PathVariable("id") @Positive Long id) throws CustomException {
         service.deactivate(id);
     }
 
-    //@PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping(value = "/departments/{id}")
-    public DepartmentDtoOutput findDepartment(//@AuthenticationPrincipal Jwt jwt,
-                                              @PathVariable("id") @Positive Long id) throws CustomException {
+    public DepartmentDtoOutput findDepartment(@PathVariable("id") @Positive Long id) throws CustomException {
         return service.findById(id);
     }
 
-    //@PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping(value = "/departments")
-    public List<DepartmentDtoOutput> findAllDepartment(//@AuthenticationPrincipal Jwt jwt,
-                                                       @RequestParam(name = "page", defaultValue = "1", required = false) @Min(1) int page,
-                                                       @RequestParam(name = "size", defaultValue = "10", required = false) @Min(1) int size)
-            throws CustomException {
+    public List<DepartmentDtoOutput> findAllDepartment(
+            @RequestParam(name = "page", defaultValue = "1", required = false) @Min(1) int page,
+            @RequestParam(name = "size", defaultValue = "10", required = false) @Min(1) int size) {
         return service.findAll(page, size);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping(value = "/directorates/{idDir}/departments")
-    public List<DepartmentDtoOutput> findAllDepartmentByDirectorate(//@AuthenticationPrincipal Jwt jwt,
-                                                                    @PathVariable("idDir") @Positive Long idDir,
-                                                                    @RequestParam(name = "page", defaultValue = "1", required = false) @Min(1) int page,
-                                                                    @RequestParam(name = "size", defaultValue = "10", required = false) @Min(1) int size)
-            throws CustomException {
+    public List<DepartmentDtoOutput> findAllDepartmentByDirectorate(
+            @PathVariable("idDir") @Positive Long idDir,
+            @RequestParam(name = "page", defaultValue = "1", required = false) @Min(1) int page,
+            @RequestParam(name = "size", defaultValue = "10", required = false) @Min(1) int size) {
         return service.findAllByDirectorate(idDir, page, size);
     }
 }
