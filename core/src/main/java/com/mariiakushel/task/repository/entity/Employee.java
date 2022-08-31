@@ -3,7 +3,9 @@ package com.mariiakushel.task.repository.entity;
 import com.mariiakushel.task.enumeration.Position;
 import com.mariiakushel.task.repository.PostgresEnumType;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
@@ -18,8 +20,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+/**
+ * Class represent Employee entity
+ */
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true, exclude = {"user", "subdepartment"})
+@ToString(callSuper = true, exclude = {"user", "subdepartment"})
 @Entity
 @Table(name = "employees")
 @TypeDef(
@@ -35,14 +42,13 @@ public class Employee extends BaseEntity {
     private String personalId;
     @Column(name = "employee_age", nullable = false)
     private Integer age;
-    @Column(name = "employee_position", columnDefinition = "position default 'EMPLOYEE'")
+    @Column(name = "employee_position", columnDefinition = "position_nomenclature default 'EMPLOYEE'")
     @Enumerated(EnumType.STRING)
     @Type(type = "postgres_enum_type")
     private Position position;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subdepartment")
     private Subdepartment subdepartment;
-    @OneToOne(mappedBy = "employee")
+    @OneToOne(mappedBy = "employee", fetch = FetchType.LAZY,cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private User user;
-
 }

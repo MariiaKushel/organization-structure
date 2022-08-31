@@ -1,6 +1,5 @@
 package com.mariiakushel.task.repository.entity;
 
-import com.mariiakushel.task.enumeration.SubdepartmentType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -16,6 +15,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.util.Set;
 
+/**
+ * Class represent Department entity.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true, exclude = {"subdepartments", "directorate"})
@@ -32,4 +34,9 @@ public class Department extends BaseEntity {
     private Directorate directorate;
     @OneToMany(mappedBy = "department", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<Subdepartment> subdepartments;
+
+    public Department(Long id) {
+        super(id);
+    }
 }
+

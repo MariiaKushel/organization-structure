@@ -1,11 +1,13 @@
 package com.mariiakushel.task.service.dto;
 
 import com.mariiakushel.task.enumeration.Position;
-import com.mariiakushel.task.repository.entity.Department;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Class represents a Employee DTO for output operations
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

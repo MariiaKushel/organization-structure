@@ -8,6 +8,9 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 
+/**
+ * Class PosgreSQL Enumeration type adapter. Use for correct interpretation PosgreSQL Enumeration type by Spring Data.
+ */
 public class PostgresEnumType extends EnumType {
     public void nullSafeSet(
             PreparedStatement st,

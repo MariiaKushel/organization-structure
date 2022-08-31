@@ -13,6 +13,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.util.Set;
 
+/**
+ * Class represent Directorate entity.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true, exclude = "departments")

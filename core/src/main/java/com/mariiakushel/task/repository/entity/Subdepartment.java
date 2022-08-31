@@ -21,6 +21,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.util.Set;
 
+/**
+ * Class represent Subdepartment entity
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true, exclude = "employees")
@@ -37,8 +40,12 @@ public class Subdepartment extends BaseEntity {
     private Department department;
     @Column(name = "subdepartment_type", nullable = false, columnDefinition = "subdepartment_type default 'EMPLOYEES'")
     @Enumerated(EnumType.STRING)
-    @Type( type = "postgres_enum_type" )
+    @Type(type = "postgres_enum_type")
     private SubdepartmentType type;
     @OneToMany(mappedBy = "subdepartment", fetch = FetchType.LAZY)
     private Set<Employee> employees;
+
+    public Subdepartment(Long id) {
+        super(id);
+    }
 }

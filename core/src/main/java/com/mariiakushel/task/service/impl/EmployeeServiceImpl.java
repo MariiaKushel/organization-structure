@@ -6,8 +6,10 @@ import com.mariiakushel.task.exception.CustomException;
 import com.mariiakushel.task.repository.DepartmentRepository;
 import com.mariiakushel.task.repository.EmployeeRepository;
 import com.mariiakushel.task.repository.entity.Department;
+import com.mariiakushel.task.repository.entity.Directorate;
 import com.mariiakushel.task.repository.entity.Employee;
 import com.mariiakushel.task.repository.entity.Subdepartment;
+import com.mariiakushel.task.repository.entity.User;
 import com.mariiakushel.task.service.EmployeeService;
 import com.mariiakushel.task.service.dto.EmployeeDtoInputCreate;
 import com.mariiakushel.task.service.dto.EmployeeDtoInputUpdate;
@@ -17,12 +19,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Class represent implementation of DepartmentService
+ */
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
 
@@ -52,6 +58,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
         Employee emp = DtoEntityConvertor.convert(dto);
         chooseSubdepartment(emp, dep);
+        createUserForAuth(emp);
         Employee newEmp = repository.save(emp);
         return DtoEntityConvertor.convert(newEmp);
     }
@@ -73,14 +80,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee emp = optEmp
                 .orElseThrow(() -> new CustomException("resource not found id=" + id, HttpStatus.NOT_FOUND));
         emp.setActive(false);
+        emp.getUser().setActive(false);
         repository.save(emp);
     }
 
 
     @Override
     public EmployeeDtoOutput findById(Long id) throws CustomException {
-        Optional<Employee> optEmp = repository.findByIdAndActive(id, true);
-        Employee emp = optEmp
+        Employee emp = repository.findByIdAndActive(id, true)
                 .orElseThrow(() -> new CustomException("resource not found id=" + id, HttpStatus.NOT_FOUND));
         return DtoEntityConvertor.convert(emp);
     }
@@ -93,16 +100,25 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public List<EmployeeDtoOutput> findAllByDepartment(Long idDep, int page, int size) {
+    @Transactional
+    public List<EmployeeDtoOutput> findAllByDepartment(Long idHead, int page, int size) throws CustomException {
+        Employee head = repository.findByIdAndActive(idHead, true)
+                .orElseThrow(() -> new CustomException("resource not found id=" + idHead, HttpStatus.NOT_FOUND));
+        Department dep = head.getSubdepartment().getDepartment();
         Pageable paging = PageRequest.of(page - 1, size);
-        List<Employee> emps = repository.findAllByActiveAndDepartment(true, idDep, paging);
+        List<Employee> emps = repository.findAllByActiveAndSubdepartmentDepartment(true, dep, paging);
         return DtoEntityConvertor.convertEmployees(emps);
     }
 
     @Override
-    public List<EmployeeDtoOutput> findAllByDirectorate(Long idDir, int page, int size) {
+    @Transactional
+    public List<EmployeeDtoOutput> findAllByDirectorate(Long idDir, int page, int size) throws CustomException {
+        Employee director = repository.findByIdAndActive(idDir, true)
+                .orElseThrow(() -> new CustomException("resource not found id=" + idDir, HttpStatus.NOT_FOUND));
+        Directorate dir = director.getSubdepartment().getDepartment().getDirectorate();
         Pageable paging = PageRequest.of(page - 1, size);
-        List<Employee> emps = repository.findAllByActiveAndDirectorate(true, idDir, paging);
+        List<Employee> emps =
+                repository.findAllByActiveAndSubdepartmentDepartmentDirectorate(true, dir, paging);
         return DtoEntityConvertor.convertEmployees(emps);
     }
 
@@ -115,7 +131,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .orElseThrow(() -> new CustomException("Current position is not available at this department.",
                         HttpStatus.CONFLICT));
         long capacity = subdepartmentType.getCapacity();
-        long numberOfWorkers = repository.countByActiveAndSubdepartment(true, subdep.getId());
+        long numberOfWorkers = repository.countByActiveAndSubdepartment(true, subdep);
         if (numberOfWorkers >= capacity) {
             throw new CustomException("Capacity of subdepartment is overflow.", HttpStatus.CONFLICT);
         }
@@ -131,11 +147,21 @@ public class EmployeeServiceImpl implements EmployeeService {
         Long oldIdDep = emp.getSubdepartment().getDepartment().getId();
         Position newPosition = dto.getPosition();
         Long newIdDep = dto.getDepartmentId();
-        if (oldPosition != newPosition || !oldPosition.equals(newPosition)) {
+        if (oldPosition != newPosition || !oldIdDep.equals(newIdDep)) {
             emp.setPosition(dto.getPosition());
             Department dep = depRepository.findByIdAndActive(newIdDep, true)
                     .orElseThrow(() -> new CustomException("resource not found id=" + newIdDep, HttpStatus.NOT_FOUND));
             chooseSubdepartment(emp, dep);
         }
+    }
+
+    private void createUserForAuth(Employee emp) {
+        User user = new User();
+        user.setUsername(String.valueOf(emp.getPersonalId()));
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String secretPassword = encoder.encode(String.valueOf(emp.getPersonalId()));
+        user.setPassword(secretPassword);
+        user.setEmployee(emp);
+        emp.setUser(user);
     }
 }

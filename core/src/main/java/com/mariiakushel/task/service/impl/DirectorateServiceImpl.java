@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Class represent implementation of DirectorateService
+ */
 @Service
 @Validated
 public class DirectorateServiceImpl implements DirectorateService {
@@ -66,7 +69,7 @@ public class DirectorateServiceImpl implements DirectorateService {
         Directorate dir = optDir
                 .orElseThrow(() -> new CustomException("resource not found id=" + id, HttpStatus.NOT_FOUND));
         Optional<Directorate> nameCheck = repository.findByNameAndActive(dto.getName(), true);
-        if (nameCheck.isPresent()) {
+        if (nameCheck.isPresent() && !nameCheck.get().equals(dir)) {
             throw new CustomException(
                     new StringBuilder()
                             .append("Directorate named '")
@@ -87,7 +90,7 @@ public class DirectorateServiceImpl implements DirectorateService {
         Optional<Directorate> optDir = repository.findByIdAndActive(id, true);
         Directorate dir = optDir
                 .orElseThrow(() -> new CustomException("resource not found id=" + id, HttpStatus.NOT_FOUND));
-        long numberOfEmployees = empRepository.countByActiveAndDirectorate(true, dir.getId());
+        long numberOfEmployees = empRepository.countByActiveAndSubdepartmentDepartmentDirectorate(true, dir);
         if (numberOfEmployees != 0) {
             throw new CustomException(
                     new StringBuilder()

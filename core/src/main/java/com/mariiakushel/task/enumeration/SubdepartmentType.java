@@ -1,11 +1,15 @@
 package com.mariiakushel.task.enumeration;
 
+/**
+ * Enum represents type of subdepartment.
+ * It includes capacity of subdepartment to ensure that subdepartment is not overflow.
+ */
 public enum SubdepartmentType {
     EMPLOYEES(Integer.MAX_VALUE),
     HEADS(1),
     DIRECTORS(1);
 
-    private long capacity;
+    private final long capacity;
 
     SubdepartmentType(long capacity) {
         this.capacity = capacity;
@@ -13,9 +17,5 @@ public enum SubdepartmentType {
 
     public long getCapacity() {
         return capacity;
-    }
-
-    public void setCapacity(long capacity) {
-        this.capacity = capacity;
     }
 }

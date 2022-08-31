@@ -12,6 +12,9 @@ import com.mariiakushel.task.service.dto.EmployeeDtoOutput;
 
 import java.util.List;
 
+/**
+ * Class-convertor. Use for convert entities and DTOs between each other. It can work with single objects as collections.
+ */
 public class DtoEntityConvertor {
 
     public static Directorate convert(DirectorateDtoInput dto) {

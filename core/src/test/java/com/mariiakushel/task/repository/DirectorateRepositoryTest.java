@@ -10,11 +10,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.util.List;
 import java.util.Optional;
 
 @SpringBootTest
-@ActiveProfiles("dev")
+@ActiveProfiles("test")
 class DirectorateRepositoryTest {
     @Autowired
     private DirectorateRepository repository;
@@ -32,16 +31,15 @@ class DirectorateRepositoryTest {
     @ParameterizedTest
     @MethodSource("findAllByActiveDataProvider")
     void findAllByActive(boolean active, Pageable paging, int expected) {
-        List<Directorate> directorates = repository.findAllByActive(active, paging).toList();
-        int actual = directorates.size();
+        int actual = repository.findAllByActive(active, paging).toList().size();
         Assertions.assertEquals(expected, actual);
     }
 
     public static Object[][] findByEntityIdAndActiveDataProvider() {
         Directorate dir = new Directorate();
         dir.setId(2L);
-        dir.setName("Sales");
-        dir.setDescription("Sales directorate");
+        dir.setName("Varna");
+        dir.setDescription("Varna directorate description");
         dir.setActive(true);
         return new Object[][]{
                 {2L, true, Optional.of(dir)},
@@ -60,13 +58,13 @@ class DirectorateRepositoryTest {
     public static Object[][] findByNameAndActiveDataProvider() {
         Directorate dir = new Directorate();
         dir.setId(2L);
-        dir.setName("Sales");
-        dir.setDescription("Sales directorate");
+        dir.setName("Varna");
+        dir.setDescription("Varna directorate description");
         dir.setActive(true);
         return new Object[][]{
-                {"Sales", true, Optional.of(dir)},
+                {"Varna", true, Optional.of(dir)},
                 {"azaza", true, Optional.empty()},
-                {"Sales", false, Optional.empty()}
+                {"Varna", false, Optional.empty()}
         };
     }
 

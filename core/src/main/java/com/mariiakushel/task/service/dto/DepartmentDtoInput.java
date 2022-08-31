@@ -6,6 +6,9 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 
+/**
+ * Class represents a Department DTO for input operations
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

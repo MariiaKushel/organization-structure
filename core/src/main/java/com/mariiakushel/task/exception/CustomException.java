@@ -2,6 +2,9 @@ package com.mariiakushel.task.exception;
 
 import org.springframework.http.HttpStatus;
 
+/**
+ * Custom exception class. It includes additional field - errorCode for more information.
+ */
 public class CustomException extends Exception {
     private HttpStatus errorCode;
 

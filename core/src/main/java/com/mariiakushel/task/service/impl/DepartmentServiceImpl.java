@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Class represent implementation of DepartmentService
+ */
 @Service
 @Validated
 public class DepartmentServiceImpl implements DepartmentService {
@@ -67,12 +70,11 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     @Transactional
     public DepartmentDtoOutput update(Long id, DepartmentDtoInput dto) throws CustomException {
-        Optional<Department> optDep = repository.findByIdAndActive(id, true);
-        Department dep = optDep
+        Department dep = repository.findByIdAndActive(id, true)
                 .orElseThrow(() -> new CustomException("resource not found id=" + id, HttpStatus.NOT_FOUND));
         Optional<Department> nameCheck =
                 repository.findByNameAndDirectorateAndActive(dto.getName(), dep.getDirectorate(), true);
-        if (nameCheck.isPresent()) {
+        if (nameCheck.isPresent() && !nameCheck.get().equals(dep)) {
             throw new CustomException(
                     new StringBuilder()
                             .append("Department named '")
@@ -90,10 +92,9 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     @Transactional
     public void deactivate(Long id) throws CustomException {
-        Optional<Department> optDep = repository.findByIdAndActive(id, true);
-        Department dep = optDep
+        Department dep = repository.findByIdAndActive(id, true)
                 .orElseThrow(() -> new CustomException("resource not found id=" + id, HttpStatus.NOT_FOUND));
-        long numberOfEmployees = empRepository.countByActiveAndDepartment(true, dep.getId());
+        long numberOfEmployees = empRepository.countByActiveAndSubdepartmentDepartment(true, dep);
         if (numberOfEmployees != 0) {
             throw new CustomException(
                     new StringBuilder()

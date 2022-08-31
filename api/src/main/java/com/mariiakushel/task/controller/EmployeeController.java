@@ -70,8 +70,7 @@ public class EmployeeController {
 
     @PreAuthorize("hasAnyAuthority('ROLE_DIRECTOR', 'ROLE_HEAD', 'EMPLOYEE')")
     @GetMapping(value = "/employees/me")
-    public EmployeeDtoOutput findMyEmployee(@AuthenticationPrincipal Jwt jwt
-    ) throws CustomException {
+    public EmployeeDtoOutput findMyEmployee(@AuthenticationPrincipal Jwt jwt) throws CustomException {
         Long id = jwt.getClaim(EMPLOYEE_ID_CLAIM_KEY);
         return service.findById(id);
     }
@@ -85,21 +84,25 @@ public class EmployeeController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_HEAD')")
-    @GetMapping(value = "/departments/{idDep}/employees")
+    @GetMapping(value = "/departments/me/employees")
     public List<EmployeeDtoOutput> findAllEmployeesByDepartment(
-            @PathVariable("idDep") @Positive Long idDep,
+            @AuthenticationPrincipal Jwt jwt,
             @RequestParam(name = "page", defaultValue = "1", required = false) @Min(1) int page,
-            @RequestParam(name = "size", defaultValue = "10", required = false) @Min(1) int size) {
-        return service.findAllByDepartment(idDep, page, size);
+            @RequestParam(name = "size", defaultValue = "10", required = false) @Min(1) int size)
+            throws CustomException {
+        Long idHead = jwt.getClaim(EMPLOYEE_ID_CLAIM_KEY);
+        return service.findAllByDepartment(idHead, page, size);
     }
 
     @PreAuthorize("hasAuthority('ROLE_DIRECTOR')")
     @GetMapping(value = "/directorates/{idDir}/employees")
     public List<EmployeeDtoOutput> findAllEmployeesByDirectorate(
-            @PathVariable("idDir") @Positive Long idDir,
+            @AuthenticationPrincipal Jwt jwt,
             @RequestParam(name = "page", defaultValue = "1", required = false) @Min(1) int page,
-            @RequestParam(name = "size", defaultValue = "10", required = false) @Min(1) int size) {
-        return service.findAllByDirectorate(idDir, page, size);
+            @RequestParam(name = "size", defaultValue = "10", required = false) @Min(1) int size)
+            throws CustomException {
+        Long idDirector = jwt.getClaim(EMPLOYEE_ID_CLAIM_KEY);
+        return service.findAllByDirectorate(idDirector, page, size);
     }
 }
 

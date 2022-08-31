@@ -11,6 +11,9 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 
+/**
+ * Class represents a Employee DTO for creation operation
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
