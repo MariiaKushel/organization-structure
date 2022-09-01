@@ -14,4 +14,4 @@ As well, It was added default Department with default Subdepartment for Director
 It was done to can have Admin user of system with additional possibility.  
 - Operations by create, update and deactivate Employee needs more checks to exclude controversial situations. It can be implements in the future.  
 
-![Alt-текст]()
+![Alt-текст](https://github.com/MariiaKushel/organization-structure/blob/dev/core/src/main/resources/schema_db.png "schema_db.png")
