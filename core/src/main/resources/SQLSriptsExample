@@ -1,0 +1,41 @@
+//SQL scripts example by table employees:
+
+//Insert:
+INSERT INTO employees (employee_name, employee_surname, employee_personal_id, employee_age, active, subdepartment, employee_position)
+VALUES ('Employee_Name'::character varying, 'Employee_Surname'::character varying, '100000001'::character varying, 55::integer, true::boolean, 1::bigint, 'EMPLOYEE'::position_nomenclature);
+
+//Update active employee by id=1:
+UPDATE employees
+SET employee_name='New_Employee_Name'::character varying, employee_surname='New_Employee_Surname'::character varying
+WHERE id=1 AND active=true
+
+//Select active employee by id=1:
+SELECT employee_name, employee_surname, employee_personal_id, employee_age, active, subdepartment, employee_position
+FROM employees
+WHERE id=1 AND active=true
+
+//Select all active employees:
+SELECT employee_name, employee_surname, employee_personal_id, employee_age, active, subdepartment, employee_position
+FROM employees
+WHERE active=true
+//ORDER BY id ASC Optional
+
+//Select all active employees by department id=5:
+SELECT employee_name, employee_surname, employee_personal_id, employee_age, employees.active, subdepartment, employee_position
+FROM subdepartments
+JOIN employees ON subdepartments.parent=5 AND subdepartments.id=employees.subdepartment
+WHERE employees.active=true
+
+//Select all active employees by directorate id=3:
+SELECT employee_name, employee_surname, employee_personal_id, employee_age, employees.active, subdepartment, employee_position
+FROM departments
+JOIN subdepartments ON departments.directorate=3 AND subdepartments.parent=departments.id
+JOIN employees ON subdepartments.id=employees.subdepartment
+WHERE employees.active=true
+
+//Count all active employees by directorate id=3:
+SELECT COUNT (employees.id) AS total_employees
+FROM departments
+JOIN subdepartments ON departments.directorate=3 AND subdepartments.parent=departments.id
+JOIN employees ON subdepartments.id=employees.subdepartment
+WHERE employees.active=true
