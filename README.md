@@ -3,7 +3,7 @@ Project structure:
 - authserver module: includes implementation of cusmon authorithation server with JWT.  
 - core module: includes dao and service layer.  
 - api module: controller layer, it includes implementation of resource server with Spring Security.  
-- examples of some SQL scripts you can find [here]()  
+- examples of some SQL scripts you can find [here](https://github.com/MariiaKushel/organization-structure/blob/dev/core/src/main/resources/SQLSriptsExample)  
 
 **Nuances**  
 - All entity can not be removed at all from database. Instead of this I add marker "active" as analog removed entity. 
