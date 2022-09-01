@@ -1,7 +1,6 @@
 package com.mariiakushel.task.advicer;
 
 import com.mariiakushel.task.exception.CustomException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -27,8 +26,8 @@ public class CustomExceptionAdvice {
     /**
      * Method catches CustomException and generates response entity.
      *
-     * @param e - CustomException
-     * @return - response entity consist body - ExceptionResponse and HttpStatus
+     * @param e CustomException
+     * @return response entity consist body ExceptionResponse and HttpStatus
      */
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ExceptionResponse> handleCustomException(CustomException e) {
@@ -42,8 +41,8 @@ public class CustomExceptionAdvice {
     /**
      * Method catches Exception and generates response entity.
      *
-     * @param e - Exception
-     * @return - response entity consist body - ExceptionResponse and HttpStatus
+     * @param e Exception
+     * @return response entity consist body ExceptionResponse and HttpStatus
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionResponse> handleInternalServerException(Exception e) {
@@ -57,8 +56,8 @@ public class CustomExceptionAdvice {
     /**
      * Method catches HttpRequestMethodNotSupportedException and generates response entity.
      *
-     * @param e - HttpRequestMethodNotSupportedException
-     * @return - response entity consist body - ExceptionResponse and HttpStatus
+     * @param e HttpRequestMethodNotSupportedException
+     * @return response entity consist body ExceptionResponse and HttpStatus
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ExceptionResponse> handleMethodNotSupportedException(
@@ -73,8 +72,8 @@ public class CustomExceptionAdvice {
     /**
      * Method catches MethodArgumentTypeMismatchException and generates response entity.
      *
-     * @param e - MethodArgumentTypeMismatchException
-     * @return - response entity consist body - ExceptionResponse and HttpStatus
+     * @param e MethodArgumentTypeMismatchException
+     * @return response entity consist body ExceptionResponse and HttpStatus
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ExceptionResponse> handleMethodArgumentTypeMismatchException(
@@ -89,8 +88,8 @@ public class CustomExceptionAdvice {
     /**
      * Method catches HttpMessageNotReadableException and generates response entity.
      *
-     * @param e - HttpMessageNotReadableException
-     * @return - response entity consist body - ExceptionResponse and HttpStatus
+     * @param e HttpMessageNotReadableException
+     * @return response entity consist body ExceptionResponse and HttpStatus
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ExceptionResponse> handleHttpMessageNotReadableException(
@@ -105,8 +104,8 @@ public class CustomExceptionAdvice {
     /**
      * Method catches HttpMediaTypeNotSupportedException and generates response entity.
      *
-     * @param e - HttpMediaTypeNotSupportedException
-     * @return - response entity consist body - ExceptionResponse and HttpStatus
+     * @param e HttpMediaTypeNotSupportedException
+     * @return response entity consist body ExceptionResponse and HttpStatus
      */
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     public ResponseEntity<ExceptionResponse> handleHttpMessageNotReadableException(
@@ -121,8 +120,8 @@ public class CustomExceptionAdvice {
     /**
      * Method catches MissingServletRequestParameterException and generates response entity.
      *
-     * @param e - MissingServletRequestParameterException
-     * @return - response entity consist body - ExceptionResponse and HttpStatus
+     * @param e MissingServletRequestParameterException
+     * @return response entity consist body ExceptionResponse and HttpStatus
      */
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ExceptionResponse> handleMissingServletRequestParameterException(
@@ -134,7 +133,13 @@ public class CustomExceptionAdvice {
         return new ResponseEntity<>(exceptionResponse, httpStatus);
     }
 
-        @ExceptionHandler(AccessDeniedException.class)
+    /**
+     * Method catches AccessDeniedException and generates response entity.
+     *
+     * @param e AccessDeniedException
+     * @return response entity consist body ExceptionResponse and HttpStatus
+     */
+    @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ExceptionResponse> handleAccessDeniedException(
             AccessDeniedException e) {
         SecurityContext context = SecurityContextHolder.getContext();
@@ -152,6 +157,13 @@ public class CustomExceptionAdvice {
         ExceptionResponse exceptionResponse = new ExceptionResponse(message, errorCode);
         return new ResponseEntity<>(exceptionResponse, httpStatus);
     }
+
+    /**
+     * Method catches ConstraintViolationException and generates response entity.
+     *
+     * @param e ConstraintViolationException
+     * @return response entity consist body ExceptionResponse and HttpStatus
+     */
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ExceptionResponse> handleConstraintViolationException(
             ConstraintViolationException e) {
